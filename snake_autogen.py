@@ -20,6 +20,7 @@ user_proxy = autogen.UserProxyAgent(
     human_input_mode="TERMINATE",
     code_execution_config={
         "work_dir": "code",
+        "last_n_messages": 3,
         "use_docker": False
     }
 )
@@ -27,10 +28,11 @@ user_proxy = autogen.UserProxyAgent(
 engineer = autogen.AssistantAgent(
     name="Engineer",
     llm_config=llm_config,
-    system_message= """Engineer. You follow an approved plan. Make sure you save code to disk.  You write python/shell
+    system_message= """Engineer. You follow an approved plan. You write python/shell
     code to solve tasks. Wrap the code in a code block that specifies the script type and the name of the file to 
     save to disk. When writing PowerShell scripts, include `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force` 
-    as the first line of execution if the script is run directly.
+    as the first line of execution if the script is run directly.  Make sure to save the code to disk.
+    If you want the user to save the code in a file before executing it, put # filename: <filename> inside the code block as the first line.
     """
 )
 QA = autogen.AssistantAgent(
@@ -43,7 +45,6 @@ QA = autogen.AssistantAgent(
     When testing PowerShell scripts on Windows, make sure to temporarily adjust the execution policy within the script using:
     `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force`
     before running any other commands.
-    Check that the file or files was saved in the destination folder.
     """
 )
 planner = autogen.AssistantAgent(
@@ -64,7 +65,7 @@ user_proxy.initiate_chat(
     manager,
     message="""Make a snake game with best quality user interface. 
     It should be a point based game where user give input from left, right, up and download arrow buttons and snake eats points.
-    Initial snake size should be small and after getting a point, snake size gets large.
+    Initial snake size should be small and after getting a point, snake size gets large. Make sure the game ends when the player hits the side of the screen.
     To win the game, snake should get 20 points within one minute time and if fail to get 20 points, the game ends and lost the game.
     Make sure to save the file or files in the disk.
     """
